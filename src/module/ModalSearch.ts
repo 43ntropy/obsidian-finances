@@ -9,30 +9,34 @@ export type SelectionModalData = {
 }
 
 class SearchModal extends SuggestModal<SelectionModalData> {
+    private iFuse: Fuse<SelectionModalData>;
+    private iFuseIndex: FuseIndex<SelectionModalData>;
+
     private modalData: SelectionModalData[];
+
     private cbDataGet: (query: string) => SelectionModalData[];
-    private fuse: Fuse<SelectionModalData>;
-    private fuseIndex: FuseIndex<SelectionModalData>;
 
     constructor(title: string, cbDataGet: (query: string) => SelectionModalData[]) {
         super(FinancialTracker.PLUGIN_APP);
         this.setPlaceholder(title);
-        this.fuse = new Fuse([], {
-            includeScore: false,
+        this.iFuse = new Fuse([], {
             threshold: 0.3
         });
         this.cbDataGet = cbDataGet;
     }
 
     getSuggestions(query: string): SelectionModalData[] {
-        if (query.length <= 3) {
+        if (query.length == 0 ) {
+
+        }
+        else if (query.length <= 3) {
             this.modalData = this.cbDataGet(query);
-            this.fuseIndex = Fuse.createIndex(['text'], this.modalData)
-            this.fuse.setCollection(this.modalData, this.fuseIndex);
+            this.iFuseIndex = Fuse.createIndex(['text'], this.modalData)
+            this.iFuse.setCollection(this.modalData, this.iFuseIndex);
             return this.modalData;
         }
         else {
-            return this.fuse.search(query).map(result => result.item);
+            return this.iFuse.search(query).map(result => result.item);
         }
     }
 
@@ -44,16 +48,17 @@ class SearchModal extends SuggestModal<SelectionModalData> {
 
 }
 
-
 /**
  * Creates a modal with a list of entries.
  * @param title The title of the modal.
  * @param entries The entries to display in the modal.
+ * @param onDataGet The function to call to get data based on the query.
  * @param onSelect The function to call when an entry is selected.
  * @param onClose The function to call when the modal is closed.
  */
 export function createSearchModal(
     title: string,
+    entries: SelectionModalData[],
     onDataGet: (query: string) => SelectionModalData[],
     onSelect: (item: ControllerState) => void,
     onClose: () => void

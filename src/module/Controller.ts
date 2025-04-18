@@ -364,6 +364,7 @@ export class Controller {
                     state = await viewTransactionsSearch({
                         dataGet: (query) => ModelTransaction.getListBySearch(query)
                     });
+                    break;
                 }
 
                 case ControllerAction.OPEN_TRANSACTION: {

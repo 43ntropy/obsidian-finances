@@ -15,10 +15,11 @@ If you have any suggestions or feature ideas, please open an issue on the GitHub
 ## Future Improvements
 1. Improve the UI with a custom widgets
 2. Add support to MySQL, MariaDB and PostgreSQL (Keeping offline support)
-3. Integrate with bank APIs for automatic transaction import
+3. Integrate with bank APIs for automatic transaction import (requires feature 4)
 4. Add support for multiple currencies
 5. Integrate investment tracking features (requires feature 4)
 6. Support multiple languages (currently only English)
+7. Purchasing power tracking (inflation)
 
 ## Contributing
 If you would like to contribute to this project, please fork the repository and submit a pull request. Any contributions are welcome!

@@ -15,5 +15,5 @@ export class Model {
 
     static setSqlite = (database: Database) => Model.sqlite = database;
 
-    // TODO: Implement a method to create the table if it doesn't exist
+    // TODO: Implement a method to create default database & tables if it doesn't exists
 }

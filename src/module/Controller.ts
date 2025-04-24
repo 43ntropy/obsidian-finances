@@ -13,6 +13,10 @@ import { viewPeople } from "src/view/People";
 import { viewNewPerson } from "src/view/NewPerson";
 import { viewPerson } from "src/view/Person";
 import { viewEditPersonName } from "src/view/EditPersonName";
+import { viewConsumers } from "src/view/Consumers";
+import { ModelConsumer } from "src/model/Consumer";
+import { viewNewConsumer } from "src/view/NewConsumer";
+import { viewEditConsumerName } from "src/view/EditConsumerName";
 
 export class Controller {
 
@@ -235,6 +239,105 @@ export class Controller {
                             }
                             else return {
                                 action: ControllerAction.OPEN_PERSON,
+                                action_data: state.action_data
+                            }
+                        },
+                        close: () => ({ action: ControllerAction.CLOSE })
+                    });
+                    break;
+                }
+
+                /*
+                * START CONSUMERS
+                */
+                case ControllerAction.OPEN_CONSUMERS: {
+                    state = await viewConsumers({
+                        selected: state.action_data ?
+                            ModelConsumer.getById(state.action_data)
+                            : null,
+                        subconsumers: ModelConsumer.getList(state.action_data),
+                    });
+                    break;
+                }
+
+                case ControllerAction.CREATE_CONSUMER: {
+                    state = await viewNewConsumer({
+                        submit: (fields) => {
+                            const consumer = ModelConsumer.create(
+                                fields[`name`],
+                                state.action_data ?? null
+                            );
+                            if (state.confirm_redirect) return {
+                                action: state.confirm_redirect,
+                                action_data: state.confirm_redirect_data
+                            }
+                            else return {
+                                action: ControllerAction.OPEN_CONSUMERS,
+                                action_data: consumer.id
+                            }
+                        },
+                        cancel: () => {
+                            if (state.cancel_redirect) return {
+                                action: state.cancel_redirect,
+                                action_data: state.cancel_redirect_data
+                            }
+                            else return {
+                                action: ControllerAction.OPEN_CONSUMERS,
+                                action_data: state.action_data
+                            }
+                        },
+                        close: () => ({ action: ControllerAction.CLOSE })
+                    });
+                    break;
+                }
+
+                case ControllerAction.EDIT_CONSUMER_NAME: {
+                    state = await viewEditConsumerName({
+                        consumer: ModelConsumer.getById(state.action_data as number)
+                    }, {
+                        submit: (fields) => {
+                            const consumer = ModelConsumer.getById(state.action_data as number);
+                            consumer.name = fields[`name`];
+                            consumer.save();
+                            return {
+                                action: ControllerAction.OPEN_CONSUMERS,
+                                action_data: state.action_data
+                            }
+                        },
+                        cancel: () => {
+                            return {
+                                action: ControllerAction.OPEN_CONSUMERS,
+                                action_data: state.action_data
+                            }
+                        },
+                        close: () => ({ action: ControllerAction.CLOSE })
+                    });
+                    break;
+                }
+
+                case ControllerAction.DELETE_CONSUMER: {
+                    state = await viewConfirm({
+                        message: `Are you sure you want to delete this consumer? This action cannot be undone.`
+                    }, {
+                        confirm: () => {
+                            const parent = ModelConsumer.getById(state.action_data as number).parent?.id;
+                            ModelConsumer.getById(state.action_data as number).delete();
+                            if (state.confirm_redirect) return {
+                                action: state.confirm_redirect,
+                                action_data: state.confirm_redirect_data
+                            }
+                            else return {
+                                action: ControllerAction.OPEN_CONSUMERS,
+                                action_data: parent
+                            }
+                        },
+                        cancel: () => {
+                            if (state.cancel_redirect) return {
+                                action: state.cancel_redirect,
+                                action_data: state.cancel_redirect_data
+                            }
+                            else return {
+                                action: ControllerAction.OPEN_CONSUMERS,
                                 action_data: state.action_data
                             }
                         },

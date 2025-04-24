@@ -82,7 +82,36 @@ export enum ControllerAction {
     * CONSUMERS
     */
 
+    /**
+     * Supports:
+     * - Data: Consumer ID or null, define which consumer is selected
+     * (Default to null) 
+     */
     OPEN_CONSUMERS,
+    /**
+     * Supports:
+     * - Data: Consumer ID or null, define which is the parent consumer
+     * (Default to null)
+     * - Confirm: Redirection after creation
+     * (Default to {@link ControllerAction.OPEN_CONSUMERS|Created consumer})
+     * - Cancel: Redirection if cancelled
+     * (Default to {@link ControllerAction.OPEN_CONSUMERS|Consumers})
+     */
+    CREATE_CONSUMER,
+    /** Requires:
+     * - Data: Consumer ID
+     */
+    EDIT_CONSUMER_NAME,
+    /** Requires:
+     * - Data: Consumer ID
+     *
+     * Supports:
+     * - Confirm: Redirection after deletion
+     * (Default to {@link ControllerAction.OPEN_CONSUMERS|Consumers})
+     * - Cancel: Redirection if cancelled
+     * (Default to {@link ControllerAction.OPEN_CONSUMER|Parent Consumer})
+     */
+    DELETE_CONSUMER,
 
 
     /*

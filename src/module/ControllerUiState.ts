@@ -119,6 +119,7 @@ export enum ControllerAction {
     */
 
     OPEN_TRANSACTIONS,
+    OPEN_TRANSACTION,
     CREATE_TRANSACTION,
 
 

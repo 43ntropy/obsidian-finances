@@ -1,5 +1,5 @@
 import initSqlJs from 'sql.js';
-import { App, Plugin, TFile } from 'obsidian';
+import { App, Plugin, TFile, Notice } from 'obsidian';
 import { Model } from 'src/model/Model';
 import { createSelectionModal } from 'src/module/ModalSelection';
 import { Controller } from 'src/module/Controller';

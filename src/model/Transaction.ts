@@ -2,16 +2,17 @@ import { ModelAccount } from "./Account";
 import { ModelConsumer } from "./Consumer";
 import { Model } from "./Model";
 import { ModelPerson } from "./Person";
+import { ModelWorld } from "./World";
 
-class ModelTransaction extends Model {
+export class ModelTransaction extends Model {
     readonly id: number;
     amount: number;
     description: string;
     timestamp: number;
-    sender: ModelAccount | ModelPerson | null;
-    receiver: ModelAccount | ModelPerson | ModelConsumer | null;
+    sender: ModelAccount | ModelPerson | ModelWorld;
+    receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld;
 
-    constructor(id: number, amount: number, description: string, timestamp: number, sender: ModelAccount | ModelPerson | null, receiver: ModelAccount | ModelPerson | ModelConsumer | null) {
+    constructor(id: number, amount: number, description: string, timestamp: number, sender: ModelAccount | ModelPerson | ModelWorld, receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld) {
         super();
         this.id = id;
         this.amount = amount;
@@ -24,19 +25,19 @@ class ModelTransaction extends Model {
     static getById(id: number): ModelTransaction {
         const res = ModelTransaction.sqlite.exec(`
             SELECT *
-            FROM Transaction 
+            FROM "Transaction" 
             WHERE id = ${id}`
         );
 
         // Check sender type
-        let sender = null;
-        if (res[0].values[0][4] != null) 
+        let sender = new ModelWorld();
+        if (res[0].values[0][4] != null)
             sender = ModelAccount.getById(res[0].values[0][4] as number);
         else if (res[0].values[0][6] != null)
             sender = ModelPerson.getById(res[0].values[0][6] as number);
 
         // Check receiver type
-        let receiver = null;
+        let receiver = new ModelWorld();
         if (res[0].values[0][5] != null)
             receiver = ModelAccount.getById(res[0].values[0][5] as number);
         else if (res[0].values[0][7] != null)
@@ -53,6 +54,41 @@ class ModelTransaction extends Model {
             receiver
         );
     }
+
+    static getList(): ModelTransaction[] {
+        // TODO: Optimeze method query with JOINS
+        const res = ModelTransaction.sqlite.exec(`
+            SELECT * 
+            FROM "Transaction"
+            ORDER BY timestamp DESC
+        `);
+        const transactions: ModelTransaction[] = [];
+        if (res[0])
+            for (const transaction of res[0].values) {
+                let sender = new ModelWorld();
+                if (transaction[4] != null)
+                    sender = ModelAccount.getById(transaction[4] as number);
+                else if (transaction[6] != null)
+                    sender = ModelPerson.getById(transaction[6] as number);
+                let receiver = new ModelWorld();
+                if (transaction[5] != null)
+                    receiver = ModelAccount.getById(transaction[5] as number);
+                else if (transaction[7] != null)
+                    receiver = ModelPerson.getById(transaction[7] as number);
+                else if (transaction[9] != null)
+                    receiver = ModelConsumer.getById(transaction[8] as number);
+                transactions.push(new ModelTransaction(
+                    transaction[0] as number,
+                    transaction[1] as number,
+                    transaction[2] as string,
+                    transaction[3] as number,
+                    sender,
+                    receiver
+                ));
+            }
+        return transactions;
+    }
+
 
     save(): void {
         ModelTransaction.sqlite.exec(`

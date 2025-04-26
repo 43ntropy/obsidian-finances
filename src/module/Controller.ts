@@ -19,11 +19,13 @@ import { viewNewConsumer } from "src/view/NewConsumer";
 import { viewEditConsumerName } from "src/view/EditConsumerName";
 import { viewTransactions } from "src/view/Transactions";
 import { ModelTransaction } from "src/model/Transaction";
+import { viewTransaction } from "src/view/Transaction";
+import { viewTransactionsSearch } from "src/view/TransactionsSearch";
 
 export class Controller {
 
     static async openUi() {
-        let state: ControllerState = { action: ControllerAction.OPEN_DASHBOARD };
+        let state: ControllerState = { action: ControllerAction.OPEN_TRANSACTIONS_SEARCH };
         do {
             switch (state.action) {
 
@@ -354,6 +356,19 @@ export class Controller {
                 case ControllerAction.OPEN_TRANSACTIONS: {
                     state = await viewTransactions({
                         transactions: ModelTransaction.getList()
+                    });
+                    break;
+                }
+
+                case ControllerAction.OPEN_TRANSACTIONS_SEARCH: {
+                    state = await viewTransactionsSearch({
+                        dataGet: (query) => ModelTransaction.getListBySearch(query)
+                    });
+                }
+
+                case ControllerAction.OPEN_TRANSACTION: {
+                    state = await viewTransaction({
+                        transaction: ModelTransaction.getById(state.action_data as number)
                     });
                     break;
                 }

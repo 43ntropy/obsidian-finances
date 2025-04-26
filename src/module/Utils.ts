@@ -40,3 +40,11 @@ export function transactionDate(transaction: ModelTransaction): string {
     // TODO: Add localization support
     return `[${new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }).format(transaction.timestamp)}]`
 }
+
+export function transactionActor(actor: ModelAccount | ModelPerson | ModelConsumer | ModelWorld): string {
+    if (actor instanceof ModelAccount) return `💳 ${actor.name}`;
+    else if (actor instanceof ModelPerson) return `👤 ${actor.name}`;
+    else if (actor instanceof ModelConsumer) return `🛍️ ${actor.name}`;
+    else if (actor instanceof ModelWorld) return `🌍 World`;
+    else throw new Error(`Unknown actor type: ${actor}`);
+}

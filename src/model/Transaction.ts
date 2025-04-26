@@ -89,6 +89,41 @@ export class ModelTransaction extends Model {
         return transactions;
     }
 
+    static getListBySearch(search: string): ModelTransaction[] {
+        const res = ModelTransaction.sqlite.exec(`
+            SELECT t.* 
+            FROM "Transaction" t
+            JOIN FTS_Transaction fts ON t.id = fts.id
+            WHERE FTS_Transaction MATCH '"${search.replace(/"/g, '""')}*"'
+            ORDER BY timestamp DESC
+            LIMIT 25
+        `);
+        const transactions: ModelTransaction[] = [];
+        if (res[0])
+            for (const transaction of res[0].values) {
+                let sender = new ModelWorld();
+                if (transaction[4] != null)
+                    sender = ModelAccount.getById(transaction[4] as number);
+                else if (transaction[6] != null)
+                    sender = ModelPerson.getById(transaction[6] as number);
+                let receiver = new ModelWorld();
+                if (transaction[5] != null)
+                    receiver = ModelAccount.getById(transaction[5] as number);
+                else if (transaction[7] != null)
+                    receiver = ModelPerson.getById(transaction[7] as number);
+                else if (transaction[9] != null)
+                    receiver = ModelConsumer.getById(transaction[8] as number);
+                transactions.push(new ModelTransaction(
+                    transaction[0] as number,
+                    transaction[1] as number,
+                    transaction[2] as string,
+                    transaction[3] as number,
+                    sender,
+                    receiver
+                ));
+            }
+        return transactions;
+    }
 
     save(): void {
         ModelTransaction.sqlite.exec(`

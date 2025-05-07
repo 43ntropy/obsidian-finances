@@ -21,6 +21,7 @@ data.json
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
-database.db
+database.sqlite
+database.base.sqlite
 sql-wasm.wasm
 package-lock.json

@@ -25,6 +25,8 @@ import { ModelWorld } from "src/model/World";
 
 export class Controller {
 
+    static onSave: () => void;
+
     static async openUi() {
         let state: ControllerState = { action: ControllerAction.OPEN_DASHBOARD };
         do {
@@ -376,7 +378,6 @@ export class Controller {
                 }
 
                 case ControllerAction.CREATE_TRANSACTION: {
-                    console.log("Creating transaction...");
                     state = await viewNewTransaction({
                         getAccount: (id) => ModelAccount.getById(id),
                         getAccounts: () => ModelAccount.getList(),
@@ -434,6 +435,7 @@ export class Controller {
             
             }
         } while (state.action != ControllerAction.CLOSE);
+        Controller.onSave();
     }
 
 }

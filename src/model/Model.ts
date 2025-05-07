@@ -11,7 +11,7 @@ import { Database } from "sql.js";
 */
 
 export class Model {
-    protected static sqlite: Database;
+    public static sqlite: Database;
 
     static setSqlite = (database: Database) => Model.sqlite = database;
 

@@ -1,8 +1,10 @@
 import initSqlJs from 'sql.js';
-import { App, Plugin } from 'obsidian';
+import { App, base64ToArrayBuffer, Plugin } from 'obsidian';
 import { Model } from 'src/model/Model';
 import { Controller } from 'src/module/Controller';
 import { arrayBuffer } from 'stream/consumers';
+import { sqliteBinary } from 'src/assets/sqlite';
+import { wasmBinary } from 'src/assets/wasm';
 
 export default class Finances extends Plugin {
 
@@ -11,6 +13,14 @@ export default class Finances extends Plugin {
 	async onload() {
 
 		Finances.PLUGIN_APP = this.app;
+
+		if (!await this.app.vault.adapter.exists(this.app.vault.configDir + "/plugins/obsidian-finances/database.sqlite")) {
+			await this.app.vault.adapter.writeBinary(this.app.vault.configDir + "/plugins/obsidian-finances/database.sqlite", base64ToArrayBuffer(sqliteBinary));
+		}
+
+		if (!await this.app.vault.adapter.exists(this.app.vault.configDir + "/plugins/obsidian-finances/sql-wasm.wasm")) {
+			await this.app.vault.adapter.writeBinary(this.app.vault.configDir + "/plugins/obsidian-finances/sql-wasm.wasm", base64ToArrayBuffer(wasmBinary));
+		}
 
 		const SQL = await initSqlJs({
 			wasmBinary: await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-finances/sql-wasm.wasm")
@@ -35,6 +45,7 @@ export default class Finances extends Plugin {
 			console.log("Saving database...");
 			await this.app.vault.adapter.writeBinary(this.app.vault.configDir + "/plugins/obsidian-finances/database.sqlite", Model.sqlite.export().buffer);
 		}
+
 
 	}
 }

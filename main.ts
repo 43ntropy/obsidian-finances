@@ -2,7 +2,6 @@ import initSqlJs from 'sql.js';
 import { App, base64ToArrayBuffer, Plugin } from 'obsidian';
 import { Model } from 'src/model/Model';
 import { Controller } from 'src/module/Controller';
-import { arrayBuffer } from 'stream/consumers';
 import { sqliteBinary } from 'src/assets/sqlite';
 import { wasmBinary } from 'src/assets/wasm';
 

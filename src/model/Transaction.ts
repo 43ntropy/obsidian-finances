@@ -15,11 +15,31 @@ export class ModelTransaction extends Model {
     constructor(id: number, amount: number, description: string, timestamp: number, sender: ModelAccount | ModelPerson | ModelWorld, receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld) {
         super();
         this.id = id;
-        this.amount = amount;
+        this.amount = amount / 100;
         this.description = description;
         this.timestamp = timestamp;
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    static create(
+        sender: ModelAccount | ModelPerson | ModelWorld,
+        receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld,
+        amount: number,
+        description: string,
+        timestamp: number
+    ): ModelTransaction {
+        console.log(sender);
+        console.log(receiver);
+        console.log(amount);
+        console.log(description);
+        console.log(timestamp);
+        const res = ModelTransaction.sqlite.exec(`
+            INSERT INTO "Transaction" (amount, description, timestamp, sender_Account, receiver_Account, sender_Person, receiver_Person, sender_Consumer, receiver_Consumer) 
+            VALUES (${Math.trunc(amount * 100)}, "${description}", ${timestamp}, ${sender instanceof ModelAccount ? sender.id : "null"}, ${receiver instanceof ModelAccount ? receiver.id : "null"}, ${sender instanceof ModelPerson ? sender.id : "null"}, ${receiver instanceof ModelPerson ? receiver.id : "null"}, ${sender instanceof ModelConsumer ? sender.id : "null"}, ${receiver instanceof ModelConsumer ? receiver.id : "null"}) 
+            RETURNING id;
+        `);
+        return ModelTransaction.getById(res[0].values[0][0] as number);
     }
 
     static getById(id: number): ModelTransaction {

@@ -7,6 +7,9 @@ import { ModelAccount } from 'src/model/Account';
 import { createTextModal } from 'src/module/ModalText';
 import { ControllerAction, ControllerState } from 'src/module/ControllerUiState';
 import { zenParseMoney } from 'src/module/Utils';
+import { Modal_NewTransaction } from 'src/view/NewTransaction';
+import { ModelPerson } from 'src/model/Person';
+import { ModelConsumer } from 'src/model/Consumer';
 
 export default class FinancialTracker extends Plugin {
 
@@ -17,10 +20,10 @@ export default class FinancialTracker extends Plugin {
 		FinancialTracker.PLUGIN_APP = this.app;
 
 		const SQL = await initSqlJs({
-			wasmBinary: await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-financialtracker/sql-wasm.wasm")
+			wasmBinary: await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-finances/sql-wasm.wasm")
 		});
 
-		const DB_FILE = (await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-financialtracker/database.db"));
+		const DB_FILE = (await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-finances/database.db"));
 
 		Model.setSqlite(new SQL.Database(Buffer.from(DB_FILE)));
 

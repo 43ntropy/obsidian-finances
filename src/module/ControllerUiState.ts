@@ -20,12 +20,6 @@ export enum ControllerAction {
     * ACCOUNTS
     */
 
-    /** Support:
-     * - Confirm: Redirection after selection or creation
-     * (Default to {@link ControllerAction.OPEN_ACCOUNT|Selected account})
-     * - Cancel: Redirection if cancelled
-     * (Default to {@link ControllerAction.OPEN_DASHBOARD|Dashboard})
-     */
     OPEN_ACCOUNTS,
     OPEN_ACCOUNT,
     /** Support: 
@@ -131,20 +125,9 @@ export enum ControllerAction {
     DELETE_TRANSACTION,
 
     /*
-    * PICKERS
-    */
-
-    PICK_ENTITY,
-    PICK_ENTITY_ACCOUNT,
-    PICK_ENTITY_PERSON,
-    PICK_ENTITY_CONSUMER,
-    PICK_ENTITY_WORLD,
-
-    /*
     * OTHERS
     */
 
     CLOSE,
-
     
 }

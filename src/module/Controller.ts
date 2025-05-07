@@ -21,11 +21,13 @@ import { viewTransactions } from "src/view/Transactions";
 import { ModelTransaction } from "src/model/Transaction";
 import { viewTransaction } from "src/view/Transaction";
 import { viewTransactionsSearch } from "src/view/TransactionsSearch";
+import { viewNewTransaction } from "src/view/NewTransaction";
+import { Model } from "src/model/Model";
 
 export class Controller {
 
     static async openUi() {
-        let state: ControllerState = { action: ControllerAction.OPEN_TRANSACTIONS_SEARCH };
+        let state: ControllerState = { action: ControllerAction.OPEN_DASHBOARD };
         do {
             switch (state.action) {
 
@@ -374,14 +376,48 @@ export class Controller {
                     break;
                 }
 
+                case ControllerAction.CREATE_TRANSACTION: {
+                    console.log("Creating transaction...");
+                    state = await viewNewTransaction({
+                        getAccount: (id) => ModelAccount.getById(id),
+                        getAccounts: () => ModelAccount.getList(),
+                        getPerson: (id) => ModelPerson.getById(id),
+                        getPeople: () => ModelPerson.getList(),
+                        getConsumer: (id) => ModelConsumer.getById(id),
+                        getConsumers: () => ModelConsumer.getList(),
+                        onSubmit: (sender, reciver, amount, description, timestamp) => {
+                            const transaction = ModelTransaction.create(
+                                sender,
+                                reciver,
+                                amount,
+                                description,
+                                timestamp.valueOf(),
+                            );
+                            return {
+                                action: ControllerAction.OPEN_TRANSACTION,
+                                action_data: transaction.id
+                            }
+                        },
+                        onCancel: () => {
+                            return {
+                                action: ControllerAction.OPEN_DASHBOARD
+                            }
+                        },
+                        onClose: () => ({ action: ControllerAction.CLOSE })
+                    });
+                    break;
+                }
+
                 /*
-                * DEFAULT
+                * OTHERS
                 */
+
                 default: {
                     console.error(`Unknown state: ${state.action}`);
                     state = { action: ControllerAction.CLOSE };
                     break;
                 }
+            
             }
         } while (state.action != ControllerAction.CLOSE);
     }

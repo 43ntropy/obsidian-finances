@@ -1,6 +1,6 @@
 {
-	"id": "obsidian-financialtracker",
-	"name": "Financial Tracker",
+	"id": "obsidian-finances",
+	"name": "Finances",
 	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "A simple financial tracker for Obsidian.",

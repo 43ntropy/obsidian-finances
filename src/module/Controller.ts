@@ -20,9 +20,8 @@ import { viewEditConsumerName } from "src/view/EditConsumerName";
 import { viewTransactions } from "src/view/Transactions";
 import { ModelTransaction } from "src/model/Transaction";
 import { viewTransaction } from "src/view/Transaction";
-import { viewTransactionsSearch } from "src/view/TransactionsSearch";
 import { viewNewTransaction } from "src/view/NewTransaction";
-import { Model } from "src/model/Model";
+import { ModelWorld } from "src/model/World";
 
 export class Controller {
 
@@ -362,12 +361,12 @@ export class Controller {
                     break;
                 }
 
-                case ControllerAction.OPEN_TRANSACTIONS_SEARCH: {
+                /*case ControllerAction.OPEN_TRANSACTIONS_SEARCH: {
                     state = await viewTransactionsSearch({
                         dataGet: (query) => ModelTransaction.getListBySearch(query)
                     });
                     break;
-                }
+                }*/
 
                 case ControllerAction.OPEN_TRANSACTION: {
                     state = await viewTransaction({
@@ -393,6 +392,21 @@ export class Controller {
                                 description,
                                 timestamp.valueOf(),
                             );
+                            
+                            if (sender instanceof ModelAccount || sender instanceof ModelPerson) {
+                                sender.balance -= amount;
+                                if (reciver instanceof ModelWorld && 
+                                    sender instanceof ModelPerson) sender.remission += amount;
+                                sender.save();
+                            }
+
+                            if (reciver instanceof ModelAccount || reciver instanceof ModelPerson) {
+                                reciver.balance += amount;
+                                if (sender instanceof ModelWorld &&
+                                    reciver instanceof ModelPerson) reciver.remission -= amount;
+                                reciver.save();
+                            }
+
                             return {
                                 action: ControllerAction.OPEN_TRANSACTION,
                                 action_data: transaction.id

@@ -1,4 +1,4 @@
-import FinancialTracker from "main";
+import Finances from "main";
 import { SuggestModal } from "obsidian";
 import { ControllerState } from "./ControllerUiState";
 import Fuse, { FuseIndex } from 'fuse.js';
@@ -17,7 +17,7 @@ class SearchModal extends SuggestModal<SelectionModalData> {
     private cbDataGet: (query: string) => SelectionModalData[];
 
     constructor(title: string, cbDataGet: (query: string) => SelectionModalData[]) {
-        super(FinancialTracker.PLUGIN_APP);
+        super(Finances.PLUGIN_APP);
         this.setPlaceholder(title);
         this.iFuse = new Fuse([], {
             threshold: 0.3
@@ -26,18 +26,14 @@ class SearchModal extends SuggestModal<SelectionModalData> {
     }
 
     getSuggestions(query: string): SelectionModalData[] {
-        if (query.length == 0 ) {
-
-        }
-        else if (query.length <= 3) {
+        if (query.length == 0 ) return [];
+        if (query.length <= 3) {
             this.modalData = this.cbDataGet(query);
             this.iFuseIndex = Fuse.createIndex(['text'], this.modalData)
             this.iFuse.setCollection(this.modalData, this.iFuseIndex);
             return this.modalData;
         }
-        else {
-            return this.iFuse.search(query).map(result => result.item);
-        }
+        return this.iFuse.search(query).map(result => result.item);
     }
 
     renderSuggestion(value: SelectionModalData, el: HTMLElement): void {

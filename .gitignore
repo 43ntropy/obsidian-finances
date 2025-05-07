@@ -24,5 +24,3 @@ data.json
 database.db
 sql-wasm.wasm
 package-lock.json
-
-UserInterface.ts

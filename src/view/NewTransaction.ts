@@ -1,10 +1,10 @@
-import FinancialTracker from "main";
+import Finances from "main";
 import { Modal, Setting } from "obsidian";
 import { ModelAccount } from "src/model/Account";
 import { ModelConsumer } from "src/model/Consumer";
 import { ModelPerson } from "src/model/Person";
 import { ModelWorld } from "src/model/World";
-import { ControllerAction, ControllerState } from "src/module/ControllerUiState";
+import { ControllerState } from "src/module/ControllerUiState";
 import { zenParseMoney } from "src/module/Utils";
 
 export async function viewNewTransaction(cb: {
@@ -69,7 +69,7 @@ export class Modal_NewTransaction extends Modal {
         getConsumer: (id: number) => ModelConsumer,
         getConsumers: (sub?: number) => ModelConsumer[],
     }) {
-        super(FinancialTracker.PLUGIN_APP);
+        super(Finances.PLUGIN_APP);
         this.setTitle("New Transaction");
 
         /* SENDER */
@@ -89,7 +89,7 @@ export class Modal_NewTransaction extends Modal {
                         if (value == "a") sender_pick_account();
                         else if (value == "p") sender_pick_person();
                         else if (value == "w") {
-                            this.sender = ModelWorld;
+                            this.sender = new ModelWorld;
                             sender.setName(`Sender: World`);
                         }
                         else sender_pick();
@@ -162,7 +162,7 @@ export class Modal_NewTransaction extends Modal {
                         else if (value == "p") receiver_pick_person();
                         else if (value == "c") receiver_pick_consumer();
                         else if (value == "w") {
-                            this.receiver = ModelWorld;
+                            this.receiver = new ModelWorld;
                             receiver.setName(`Receiver: World`);
                         }
                         else receiver_pick();

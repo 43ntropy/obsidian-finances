@@ -1,23 +1,15 @@
 import initSqlJs from 'sql.js';
-import { App, Plugin, TFile, Notice } from 'obsidian';
+import { App, Plugin } from 'obsidian';
 import { Model } from 'src/model/Model';
-import { createSelectionModal } from 'src/module/ModalSelection';
 import { Controller } from 'src/module/Controller';
-import { ModelAccount } from 'src/model/Account';
-import { createTextModal } from 'src/module/ModalText';
-import { ControllerAction, ControllerState } from 'src/module/ControllerUiState';
-import { zenParseMoney } from 'src/module/Utils';
-import { Modal_NewTransaction } from 'src/view/NewTransaction';
-import { ModelPerson } from 'src/model/Person';
-import { ModelConsumer } from 'src/model/Consumer';
 
-export default class FinancialTracker extends Plugin {
+export default class Finances extends Plugin {
 
 	static PLUGIN_APP: App;
 
 	async onload() {
 
-		FinancialTracker.PLUGIN_APP = this.app;
+		Finances.PLUGIN_APP = this.app;
 
 		const SQL = await initSqlJs({
 			wasmBinary: await this.app.vault.adapter.readBinary(this.app.vault.configDir + "/plugins/obsidian-finances/sql-wasm.wasm")

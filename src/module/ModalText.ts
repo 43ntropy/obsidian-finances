@@ -1,4 +1,4 @@
-import FinancialTracker from "main";
+import Finances from "main";
 import { Modal, Setting } from "obsidian";
 
 class TextModal extends Modal {
@@ -9,7 +9,7 @@ class TextModal extends Modal {
         title: string,
         fields: { key: string, name: string }[],
     ) {
-        super(FinancialTracker.PLUGIN_APP);
+        super(Finances.PLUGIN_APP);
         super.setTitle(title);
 
         for (const field of fields) {

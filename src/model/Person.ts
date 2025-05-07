@@ -4,12 +4,12 @@ export class ModelPerson extends Model {
     readonly id: number;
     name: string;
     /** 
-     * **Positive**: Indicates that the user owes money to this person
+     * **Positive**: Indicates that this person owes money to the user
      * 
-     * **Negative**: Indicates that this person owes money to the user
+     * **Negative**: Indicates that the user owes money to this person
      */
     balance: number;
-    /** Amount gave by the user to this person that is forgiven */
+    /** Amount loaned by the user to this person that is forgiven */
     remission: number;
     last_usage: number;
 

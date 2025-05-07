@@ -22,12 +22,12 @@ export function transactionIcon(transaction: ModelTransaction): string {
     else if (transaction.sender instanceof ModelPerson)
         if (transaction.receiver instanceof ModelAccount) icon = `📥🤝`; // Incoming loan
         else if (transaction.receiver instanceof ModelPerson) icon = `📦🤝`; // Loan Transfer
-        else if (transaction.receiver instanceof ModelWorld) icon = `📈🙏`; // Incoming Remission
+        else if (transaction.receiver instanceof ModelWorld) icon = `📉🙏`; // Outgoing Remission
         else if (transaction.receiver instanceof ModelConsumer) icon = `🤔🤔`; // Strange (?Tracking People Offers?)
         else throw new Error(`Unknown receiver type: ${transaction.receiver}`);
     else if (transaction.sender instanceof ModelWorld)
         if (transaction.receiver instanceof ModelAccount) icon = `📈💳`; // Generic Income
-        else if (transaction.receiver instanceof ModelPerson) icon = `📉🙏`; // Outgoing Remission
+        else if (transaction.receiver instanceof ModelPerson) icon = `📈🙏`; // Incoming Remission
         else if (transaction.receiver instanceof ModelWorld) icon = `🤔🤔`; // Def strange
         else if (transaction.receiver instanceof ModelConsumer) icon = `🤔🤔`; // Strange (?Tracking External Offers?)
         else throw new Error(`Unknown receiver type: ${transaction.receiver}`);

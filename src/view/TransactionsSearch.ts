@@ -1,9 +1,4 @@
-import { ModelTransaction } from "src/model/Transaction";
-import { ControllerAction, ControllerState } from "src/module/ControllerUiState";
-import { createSearchModal, SelectionModalData } from "src/module/ModalSearch";
-import { transactionDate, transactionIcon } from "src/module/Utils";
-
-export async function viewTransactionsSearch(cb: {
+/*export async function viewTransactionsSearch(cb: {
     dataGet: (query: string) => ModelTransaction[];
 }): Promise<ControllerState> {
     return new Promise((resolve) => {
@@ -22,4 +17,4 @@ export async function viewTransactionsSearch(cb: {
             () => resolve({ action: ControllerAction.CLOSE }),
         );
     });
-}
+}*/

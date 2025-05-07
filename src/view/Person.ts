@@ -11,7 +11,7 @@ export async function viewPerson(placeholder: {
             [
                 {
                     text: `◼️ ${
-                        placeholder.person.balance >= 0 ? 
+                        placeholder.person.balance <= 0 ? 
                         "You owe them:" : 
                         "They owe you:"
                         } ${Math.abs(placeholder.person.balance)}€`,

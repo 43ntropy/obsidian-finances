@@ -58,7 +58,7 @@ export class ModelTransaction extends Model {
         else if (res[0].values[0][7] != null)
             receiver = ModelPerson.getById(res[0].values[0][7] as number);
         else if (res[0].values[0][9] != null)
-            receiver = ModelConsumer.getById(res[0].values[0][8] as number);
+            receiver = ModelConsumer.getById(res[0].values[0][9] as number);
 
         return new ModelTransaction(
             res[0].values[0][0] as number,
@@ -91,7 +91,7 @@ export class ModelTransaction extends Model {
                 else if (transaction[7] != null)
                     receiver = ModelPerson.getById(transaction[7] as number);
                 else if (transaction[9] != null)
-                    receiver = ModelConsumer.getById(transaction[8] as number);
+                    receiver = ModelConsumer.getById(transaction[9] as number);
                 transactions.push(new ModelTransaction(
                     transaction[0] as number,
                     transaction[1] as number,
@@ -127,7 +127,7 @@ export class ModelTransaction extends Model {
                 else if (transaction[7] != null)
                     receiver = ModelPerson.getById(transaction[7] as number);
                 else if (transaction[9] != null)
-                    receiver = ModelConsumer.getById(transaction[8] as number);
+                    receiver = ModelConsumer.getById(transaction[9] as number);
                 transactions.push(new ModelTransaction(
                     transaction[0] as number,
                     transaction[1] as number,

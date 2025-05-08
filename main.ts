@@ -55,7 +55,7 @@ export default class Finances extends Plugin {
 
 		Controller.onSave = async () => {
 			console.log("Saving database...");
-			await this.app.vault.adapter.writeBinary(PATH_DATABASE, Model.sqlite.export().buffer);
+			await this.app.vault.adapter.writeBinary(PATH_DATABASE, Model.sqlite.export());
 		}
 
 	}

@@ -36,7 +36,7 @@ export default class Finances extends Plugin {
 			wasmBinary: await this.app.vault.adapter.readBinary(PATH_SQLWASM)
 		});
 
-		const DB_FILE = Buffer.from(await this.app.vault.adapter.readBinary(PATH_DATABASE));
+		const DB_FILE = new Uint8Array(await this.app.vault.adapter.readBinary(PATH_DATABASE));
 
 		Model.setSqlite(new SQL.Database(DB_FILE));
 

@@ -9,7 +9,7 @@ class TextModal extends Modal {
         title: string,
         fields: { key: string, name: string }[],
     ) {
-        super(Finances.PLUGIN_APP);
+        super(Finances.APP);
         super.setTitle(title);
 
         for (const field of fields) {

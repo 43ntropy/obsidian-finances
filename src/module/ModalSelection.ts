@@ -11,7 +11,7 @@ class SelectionModal extends SuggestModal<SelectionModalData> {
     private modalData: SelectionModalData[] = [];
 
     constructor(title: string, fields: SelectionModalData[]) {
-        super(Finances.PLUGIN_APP);
+        super(Finances.APP);
         this.setPlaceholder(title);
         this.modalData = fields;
     }

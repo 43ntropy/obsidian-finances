@@ -69,7 +69,7 @@ export class Modal_NewTransaction extends Modal {
         getConsumer: (id: number) => ModelConsumer,
         getConsumers: (sub?: number) => ModelConsumer[],
     }) {
-        super(Finances.PLUGIN_APP);
+        super(Finances.APP);
         this.setTitle("New Transaction");
 
         /* SENDER */

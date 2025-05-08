@@ -17,7 +17,7 @@ class SearchModal extends SuggestModal<SelectionModalData> {
     private cbDataGet: (query: string) => SelectionModalData[];
 
     constructor(title: string, cbDataGet: (query: string) => SelectionModalData[]) {
-        super(Finances.PLUGIN_APP);
+        super(Finances.APP);
         this.setPlaceholder(title);
         this.iFuse = new Fuse([], {
             threshold: 0.3

@@ -63,7 +63,7 @@ export class ModelConsumer extends Model {
         ModelConsumer.sqlite.exec(`
             UPDATE Consumer SET 
             name = "${this.name}",
-            parent_id = ${this.parent != null ? this.parent.id : "null"},
+            parent_Consumer = ${this.parent != null ? this.parent.id : "null"},
             last_usage = ${this.last_usage} 
             WHERE id = ${this.id}`
         );

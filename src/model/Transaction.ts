@@ -158,7 +158,7 @@ export class ModelTransaction extends Model {
 
     delete(): void {
         ModelTransaction.sqlite.exec(`
-            DELETE FROM Transaction 
+            DELETE FROM "Transaction" 
             WHERE id = ${this.id}`
         );
     }

@@ -393,10 +393,10 @@ export class Controller {
                                 description,
                                 timestamp.valueOf(),
                             );
-                            
+
                             if (sender instanceof ModelAccount || sender instanceof ModelPerson) {
                                 sender.balance -= amount;
-                                if (reciver instanceof ModelWorld && 
+                                if (reciver instanceof ModelWorld &&
                                     sender instanceof ModelPerson) sender.remission += amount;
                                 sender.save();
                             }
@@ -423,6 +423,43 @@ export class Controller {
                     break;
                 }
 
+                case ControllerAction.DELETE_TRANSACTION: {
+                    state = await viewConfirm({
+                        message: `Are you sure you want to delete this transaction? This action cannot be undone.`
+                    }, {
+                        confirm: () => {
+                            const transaction = ModelTransaction.getById(state.action_data as number);
+
+                            if (transaction.sender instanceof ModelAccount || transaction.sender instanceof ModelPerson) {
+                                transaction.sender.balance += transaction.amount;
+                                if (transaction.receiver instanceof ModelWorld &&
+                                    transaction.sender instanceof ModelPerson)
+                                    transaction.sender.remission -= transaction.amount;
+                                transaction.sender.save();
+                            }
+
+                            if (transaction.receiver instanceof ModelAccount || transaction.receiver instanceof ModelPerson) {
+                                transaction.receiver.balance -= transaction.amount;
+                                if (transaction.sender instanceof ModelWorld &&
+                                    transaction.receiver instanceof ModelPerson)
+                                    transaction.receiver.remission += transaction.amount;
+                                transaction.receiver.save();
+                            }
+
+                            transaction.delete();
+
+                            return { action: ControllerAction.OPEN_TRANSACTIONS }
+                        },
+                        cancel: () => {
+                            return { action: ControllerAction.OPEN_TRANSACTION, action_data: state.action_data }
+                        },
+                        close: () => {
+                            return { action: ControllerAction.CLOSE }
+                        }
+                    });
+                    break;
+                }
+
                 /*
                 * OTHERS
                 */
@@ -432,7 +469,7 @@ export class Controller {
                     state = { action: ControllerAction.CLOSE };
                     break;
                 }
-            
+
             }
         } while (state.action != ControllerAction.CLOSE);
         Controller.onSave();

@@ -140,6 +140,29 @@ export class ModelTransaction extends Model {
         return transactions;
     }
 
+    /**
+     * Calculate the change in the overall balance sheet taking into account all accounts
+     */
+    static calculateAccountOffset(): number {
+        const res = ModelTransaction.sqlite.exec(`
+            SELECT amount, sender_Account, receiver_Account
+            FROM "Transaction"
+            WHERE (sender_Account IS NOT NULL OR receiver_Account IS NOT NULL)
+            AND timestamp >= ${Date.now() - 7776000000}
+        `);
+        let offset = 0;
+        if (res[0])
+            for (const transaction of res[0].values) {
+                if (transaction[1] && transaction[2])
+                    continue;
+                if (transaction[1])
+                    offset -= transaction[0] as number / 100;
+                else if (transaction[2])
+                    offset += transaction[0] as number / 100;
+            }
+        return offset;
+    }
+
     save(): void {
         ModelTransaction.sqlite.exec(`
             UPDATE Transaction SET 

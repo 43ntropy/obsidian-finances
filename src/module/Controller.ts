@@ -39,7 +39,7 @@ export class Controller {
                 case ControllerAction.OPEN_DASHBOARD: {
                     state = await viewDashboard({
                         default_account: ModelAccount.getById(ModelConfiguration.getDefaultAccount()),
-                        transactions_total: 0,
+                        transactions_total: ModelTransaction.calculateAccountOffset(),
                     });
                     break;
                 }

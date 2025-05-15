@@ -1,14 +1,14 @@
 {
 	"name": "obsidian-finances",
-	"version": "0.1.5",
-	"description": "A simple financial tracker for Obsidian.",
+	"version": "0.2.0",
+	"description": "A simple finances management solution for Obsidian.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "43ntropy",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^22.15.15",

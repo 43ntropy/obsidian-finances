@@ -8,7 +8,7 @@ export async function viewDashboard(placeholder: {
 }): Promise<ControllerState> {
     return new Promise((resolve) => {
         createSelectionModal(
-            `💎 Financial Tracker`,
+            `💎 Finances`,
             [
                 {
                     text: `💳 ${placeholder.default_account.name}: ${placeholder.default_account.balance}€`,
@@ -31,7 +31,7 @@ export async function viewDashboard(placeholder: {
                     }
                 },
                 {
-                    text: `🛒 New Expense`,
+                    text: `🛒 New Transaction`,
                     value: {
                         action: ControllerAction.CREATE_TRANSACTION,
                     }

@@ -19,7 +19,7 @@ export async function viewDashboard(placeholder: {
                 {
                     text: `🧾 Transactions: ${placeholder.transactions_total >= 0 ?
                         `+${placeholder.transactions_total}` :
-                        `-${placeholder.transactions_total}`}€`,
+                        `${placeholder.transactions_total}`}€`,
                     value: {
                         action: ControllerAction.OPEN_TRANSACTIONS,
                     }

@@ -31,7 +31,7 @@ export class ModelTransaction extends Model {
     ): ModelTransaction {
         const res = ModelTransaction.sqlite.exec(`
             INSERT INTO "Transaction" (amount, description, timestamp, sender_Account, receiver_Account, sender_Person, receiver_Person, sender_Consumer, receiver_Consumer) 
-            VALUES (${Math.trunc(amount * 100)}, "${description}", ${timestamp}, ${sender instanceof ModelAccount ? sender.id : "null"}, ${receiver instanceof ModelAccount ? receiver.id : "null"}, ${sender instanceof ModelPerson ? sender.id : "null"}, ${receiver instanceof ModelPerson ? receiver.id : "null"}, ${sender instanceof ModelConsumer ? sender.id : "null"}, ${receiver instanceof ModelConsumer ? receiver.id : "null"}) 
+            VALUES (${Math.trunc(amount * 100)}, "${description.trimStart().trimEnd()}", ${timestamp}, ${sender instanceof ModelAccount ? sender.id : "null"}, ${receiver instanceof ModelAccount ? receiver.id : "null"}, ${sender instanceof ModelPerson ? sender.id : "null"}, ${receiver instanceof ModelPerson ? receiver.id : "null"}, ${sender instanceof ModelConsumer ? sender.id : "null"}, ${receiver instanceof ModelConsumer ? receiver.id : "null"}) 
             RETURNING id;
         `);
         return ModelTransaction.getById(res[0].values[0][0] as number);
@@ -167,7 +167,7 @@ export class ModelTransaction extends Model {
         ModelTransaction.sqlite.exec(`
             UPDATE Transaction SET 
             amount = ${Math.trunc(this.amount * 100)}, 
-            description = "${this.description}", 
+            description = "${this.description.trimStart().trimEnd()}", 
             timestamp = ${this.timestamp}, 
             sender_Account = ${this.sender instanceof ModelAccount ? this.sender.id : "null"},
             receiver_Account = ${this.receiver instanceof ModelAccount ? this.receiver.id : "null"},

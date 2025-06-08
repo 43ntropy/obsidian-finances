@@ -3,8 +3,8 @@ import { App, base64ToArrayBuffer, Plugin, PluginManifest } from 'obsidian';
 import { Model } from 'src/model/Model';
 import { Controller } from 'src/module/Controller';
 import { sqliteBinary } from 'src/assets/sqlite';
-import { wasmBinary } from 'src/assets/wasm';
 import { FinancesSettingsTab, FinancesUserdata } from 'src/module/FinancesSettings';
+import { BIN_SQLJS } from 'src/assets/sqljswasm';
 
 export default class Finances extends Plugin {
 
@@ -29,7 +29,7 @@ export default class Finances extends Plugin {
 		}
 
 		if (!await this.app.vault.adapter.exists(PATH_SQLWASM)) {
-			await this.app.vault.adapter.writeBinary(PATH_SQLWASM, base64ToArrayBuffer(wasmBinary));
+			await this.app.vault.adapter.writeBinary(PATH_SQLWASM, base64ToArrayBuffer(BIN_SQLJS.data));
 		}
 
 		const SQL = await initSqlJs({
@@ -56,6 +56,29 @@ export default class Finances extends Plugin {
 		Controller.onSave = async () => {
 			console.log("Saving database...");
 			await this.app.vault.adapter.writeBinary(PATH_DATABASE, Model.sqlite.export());
+		}
+
+	}
+
+	async onloadInstaller() {
+
+		// * SQLite WASM Intaller & Updater
+
+		const SQLITE_WASM_ACTUAL_VERSION = (await this.app.vault.adapter.list(Finances.MANIFEST.dir!)).files.find((file) => /^sqlite-.*\.wasm$/.test(file));
+
+		// If the file doesn't exist or the version is different
+		if (`sqlite-${BIN_SQLJS.version}.wasm` != SQLITE_WASM_ACTUAL_VERSION) {
+
+			// Delete the old file if it exists
+			if (SQLITE_WASM_ACTUAL_VERSION)
+				await this.app.vault.adapter.remove(`${Finances.MANIFEST.dir!}/${SQLITE_WASM_ACTUAL_VERSION}`);
+
+			// Unpack the new file from base64
+			const SQLITE_WASM = base64ToArrayBuffer(BIN_SQLJS.data);
+
+			// Write the new file in the plugin folder
+			await this.app.vault.adapter.writeBinary(`${Finances.MANIFEST.dir!}/sqlite-${BIN_SQLJS.version}.wasm`, SQLITE_WASM);
+
 		}
 
 	}

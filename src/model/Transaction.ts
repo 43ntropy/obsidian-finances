@@ -70,12 +70,15 @@ export class ModelTransaction extends Model {
         );
     }
 
-    static getList(): ModelTransaction[] {
+    static getList(config: {
+        limit: number
+    } = {limit: 10}): ModelTransaction[] {
         // TODO: Optimeze method query with JOINS
         const res = ModelTransaction.sqlite.exec(`
             SELECT * 
             FROM "Transaction"
             ORDER BY timestamp DESC
+            LIMIT ${config.limit}
         `);
         const transactions: ModelTransaction[] = [];
         if (res[0])

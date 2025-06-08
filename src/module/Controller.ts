@@ -11,7 +11,6 @@ import { viewConfirm } from "src/view/Confirm";
 import { ModelPerson } from "src/model/Person";
 import { viewPeople } from "src/view/People";
 import { viewNewPerson } from "src/view/NewPerson";
-import { viewPerson } from "src/view/Person";
 import { viewEditPersonName } from "src/view/EditPersonName";
 import { viewConsumers } from "src/view/Consumers";
 import { ModelConsumer } from "src/model/Consumer";
@@ -22,6 +21,7 @@ import { ModelTransaction } from "src/model/Transaction";
 import { viewTransaction } from "src/view/Transaction";
 import { viewNewTransaction } from "src/view/NewTransaction";
 import { ModelWorld } from "src/model/World";
+import { UiPerson } from "src/ui/UiPerson";
 
 export class Controller {
 
@@ -165,8 +165,25 @@ export class Controller {
                 }
 
                 case ControllerAction.OPEN_PERSON: {
-                    state = await viewPerson({
-                        person: ModelPerson.getById(state.action_data as number)
+                    state = await new Promise((resolve) => {
+                        new UiPerson({
+                            person: ModelPerson.getById(state.action_data as number)
+                        }, {
+                            back: () => resolve({
+                                action: ControllerAction.OPEN_PEOPLE
+                            }),
+                            rename: () => resolve({
+                                action: ControllerAction.EDIT_PERSON_NAME,
+                                action_data: state.action_data
+                            }),
+                            delete: () => resolve({
+                                action: ControllerAction.DELETE_PERSON,
+                                action_data: state.action_data
+                            }),
+                            quit: () => resolve({
+                                action: ControllerAction.CLOSE
+                            }),
+                        })
                     });
                     break;
                 }

@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-finances",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"description": "A simple finances management solution for Obsidian.",
 	"main": "main.js",
 	"scripts": {

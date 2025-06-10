@@ -1,6 +1,8 @@
 import Finances from "main";
 import { Modal, Setting } from "obsidian";
 import { ModelPerson } from "src/model/Person";
+import { ModelTransaction } from "src/model/Transaction";
+import { transactionIcon } from "src/module/Utils";
 
 export class UiPerson extends Modal {
 
@@ -50,6 +52,14 @@ export class UiPerson extends Modal {
                 });
             })
 
+        ModelTransaction.getListByPerson(placeholder.person).forEach((transaction, index) => {
+            // TODO: Better format
+            const tmp = new Setting(this.contentEl);
+            tmp.setName(`${transactionIcon(transaction)} (${transaction.amount}€)`);
+            tmp.setDesc(`${transaction.description}`);
+            if (index != 0) tmp.settingEl.style.borderTop = "none";
+        });
+
         new Setting(this.contentEl)
             .addButton((backButton) => {
                 backButton.setIcon('left-arrow');
@@ -62,7 +72,6 @@ export class UiPerson extends Modal {
                     this.close();
                 });
             })
-            .settingEl.style.borderTop = "none";
 
         this.open();
     }

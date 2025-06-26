@@ -1,9 +1,8 @@
-import { ModelAccount } from "./Account";
-import { ModelConsumer } from "./Consumer";
 import { Model } from "./Model";
-import { ModelPerson } from "./Person";
 
 export class ModelEntity extends Model {
+
+    public static ENTITIES: Record<number, (id: number) => ModelEntity> = {};
 
     public readonly id: number;
     public readonly type: number;
@@ -40,37 +39,28 @@ export class ModelEntity extends Model {
 
     }
 
-    protected static get(id: number): {
-        id: number;
-        type: number;
-    } {
-        const res = ModelEntity.sqlite.exec(`
+    protected static getRaw(id: number): ModelEntity {
+
+        const queryResult = ModelEntity.sqlite.exec(`
             SELECT * 
             FROM Entity 
             WHERE id = ${id}`
         );
 
-        return {
-            id: res[0].values[0][0] as number,
-            type: res[0].values[0][1] as number
-        };
+        return new ModelEntity(
+            queryResult[0].values[0][0] as number, // id
+            queryResult[0].values[0][1] as number  // type
+        );
+
     }
 
-    getAssociatedEntity(): 
-        ModelAccount | 
-        ModelPerson | 
-        ModelConsumer 
-    {
-        switch (this.type) {
-            case 1:
-                return ModelAccount.getById(this.id);
-            case 2:
-                return ModelPerson.getById(this.id);
-            case 3:
-                return ModelConsumer.getById(this.id);
-            default:
-                throw new Error(`Unknown entity type: ${this.type}`);
-        }
+    public static get(id: number): ModelEntity {
+        
+        const entity = ModelEntity.getRaw(id);
+        const entityGetter = ModelEntity.ENTITIES[entity.type];
+        if (entityGetter === undefined) throw new Error("Entity type not registered");
+        return entityGetter(id);
+
     }
 
 }

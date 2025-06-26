@@ -1,18 +1,27 @@
 import { ModelAccount } from "./Account";
 import { ModelConsumer } from "./Consumer";
+import { ModelEntity } from "./Entity";
 import { Model } from "./Model";
 import { ModelPerson } from "./Person";
 import { ModelWorld } from "./World";
 
 export class ModelTransaction extends Model {
-    readonly id: number;
-    amount: number;
-    description: string;
-    timestamp: number;
-    sender: ModelAccount | ModelPerson | ModelWorld;
-    receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld;
 
-    constructor(id: number, amount: number, description: string, timestamp: number, sender: ModelAccount | ModelPerson | ModelWorld, receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld) {
+    readonly id: number;
+    readonly amount: number;
+    public description: string;
+    public timestamp: number;
+    readonly sender: ModelAccount | ModelPerson | ModelWorld;
+    readonly receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld;
+
+    constructor(
+        id: number,
+        amount: number,
+        description: string,
+        timestamp: number,
+        sender: ModelAccount | ModelPerson | ModelWorld,
+        receiver: ModelAccount | ModelPerson | ModelConsumer | ModelWorld
+    ) {
         super();
         this.id = id;
         this.amount = amount / 100;
@@ -29,121 +38,116 @@ export class ModelTransaction extends Model {
         description: string,
         timestamp: number
     ): ModelTransaction {
-        const res = ModelTransaction.sqlite.exec(`
-            INSERT INTO "Transaction" (amount, description, timestamp, EntitySender, EntityReceiver) 
-            VALUES (${Math.trunc(amount * 100)}, "${description.trimStart().trimEnd()}", ${timestamp}, ${sender instanceof ModelAccount ? sender.id : "null"}, ${receiver instanceof ModelAccount ? receiver.id : "null"}, ${sender instanceof ModelPerson ? sender.id : "null"}, ${receiver instanceof ModelPerson ? receiver.id : "null"}, ${sender instanceof ModelConsumer ? sender.id : "null"}, ${receiver instanceof ModelConsumer ? receiver.id : "null"}) 
+
+        const queryResult = ModelTransaction.sqlite.exec(`
+            INSERT INTO "Transaction" (
+                amount, 
+                description, 
+                timestamp, 
+                EntitySender, 
+                EntityReceiver
+            ) VALUES (
+                ${Math.trunc(amount * 100)}, 
+                "${description.trimStart().trimEnd()}", 
+                ${timestamp},
+                ${sender instanceof ModelEntity ? sender.id : "null"},
+                ${receiver instanceof ModelEntity ? receiver.id : "null"}
+            ) 
             RETURNING id;
         `);
-        return ModelTransaction.getById(res[0].values[0][0] as number);
+        return ModelTransaction.getById(queryResult[0].values[0][0] as number);
     }
 
     static getById(id: number): ModelTransaction {
-        const res = ModelTransaction.sqlite.exec(`
-            SELECT *
+
+        const queryResult = ModelTransaction.sqlite.exec(`
+            SELECT 
+                "Transaction".id,
+                "Transaction".amount,
+                "Transaction".description,
+                "Transaction".timestamp,
+                "Transaction".EntitySender,
+                "Transaction".EntityReceiver
             FROM "Transaction" 
             WHERE id = ${id}`
         );
 
-        // Check sender type
-        let sender = new ModelWorld();
-        if (res[0].values[0][4] != null)
-            sender = ModelAccount.getById(res[0].values[0][4] as number);
-        else if (res[0].values[0][6] != null)
-            sender = ModelPerson.getById(res[0].values[0][6] as number);
-
-        // Check receiver type
-        let receiver = new ModelWorld();
-        if (res[0].values[0][5] != null)
-            receiver = ModelAccount.getById(res[0].values[0][5] as number);
-        else if (res[0].values[0][7] != null)
-            receiver = ModelPerson.getById(res[0].values[0][7] as number);
-        else if (res[0].values[0][9] != null)
-            receiver = ModelConsumer.getById(res[0].values[0][9] as number);
-
         return new ModelTransaction(
-            res[0].values[0][0] as number,
-            res[0].values[0][1] as number,
-            res[0].values[0][2] as string,
-            res[0].values[0][3] as number,
-            sender,
-            receiver
+            queryResult[0].values[0][0] as number,
+            queryResult[0].values[0][1] as number,
+            queryResult[0].values[0][2] as string,
+            queryResult[0].values[0][3] as number,
+            queryResult[0].values[0][4] as number != null ?
+                ModelEntity.get(queryResult[0].values[0][4] as number) :
+                new ModelWorld(),
+            queryResult[0].values[0][5] as number != null ?
+                ModelEntity.get(queryResult[0].values[0][5] as number) :
+                new ModelWorld()
         );
+
     }
 
     static getList(config: {
         limit: number
-    } = {limit: 10}): ModelTransaction[] {
-        // TODO: Optimeze method query with JOINS
-        const res = ModelTransaction.sqlite.exec(`
+    } = { limit: 10 }): ModelTransaction[] {
+
+        const queryResult = ModelTransaction.sqlite.exec(`
             SELECT * 
             FROM "Transaction"
             ORDER BY timestamp DESC
             LIMIT ${config.limit}
         `);
+
         const transactions: ModelTransaction[] = [];
-        if (res[0])
-            for (const transaction of res[0].values) {
-                let sender = new ModelWorld();
-                if (transaction[4] != null)
-                    sender = ModelAccount.getById(transaction[4] as number);
-                else if (transaction[6] != null)
-                    sender = ModelPerson.getById(transaction[6] as number);
-                let receiver = new ModelWorld();
-                if (transaction[5] != null)
-                    receiver = ModelAccount.getById(transaction[5] as number);
-                else if (transaction[7] != null)
-                    receiver = ModelPerson.getById(transaction[7] as number);
-                else if (transaction[9] != null)
-                    receiver = ModelConsumer.getById(transaction[9] as number);
+        if (queryResult[0])
+            for (const rowQueryResult of queryResult[0].values)
                 transactions.push(new ModelTransaction(
-                    transaction[0] as number,
-                    transaction[1] as number,
-                    transaction[2] as string,
-                    transaction[3] as number,
-                    sender,
-                    receiver
+                    rowQueryResult[0] as number,
+                    rowQueryResult[1] as number,
+                    rowQueryResult[2] as string,
+                    rowQueryResult[3] as number,
+                    rowQueryResult[4] != null ? 
+                        ModelEntity.get(rowQueryResult[4] as number) : 
+                        new ModelWorld(),
+                    rowQueryResult[5] != null ? 
+                        ModelEntity.get(rowQueryResult[5] as number) : 
+                        new ModelWorld()
                 ));
-            }
+
         return transactions;
     }
 
     static getListByPerson(person: ModelPerson): ModelTransaction[] {
-        const res = ModelTransaction.sqlite.exec(`
+        const queryResult = ModelTransaction.sqlite.exec(`
             SELECT * 
             FROM "Transaction"
-            WHERE sender_Person = ${person.id} OR receiver_Person = ${person.id}
+            WHERE EntitySender = ${person.id} OR EntityReceiver = ${person.id}
             ORDER BY timestamp DESC
             LIMIT 10
         `);
+
         const transactions: ModelTransaction[] = [];
-        if (res[0])
-            for (const transaction of res[0].values) {
-                let sender = new ModelWorld();
-                if (transaction[4] != null)
-                    sender = ModelAccount.getById(transaction[4] as number);
-                else if (transaction[6] != null)
-                    sender = ModelPerson.getById(transaction[6] as number);
-                let receiver = new ModelWorld();
-                if (transaction[5] != null)
-                    receiver = ModelAccount.getById(transaction[5] as number);
-                else if (transaction[7] != null)
-                    receiver = ModelPerson.getById(transaction[7] as number);
-                else if (transaction[9] != null)
-                    receiver = ModelConsumer.getById(transaction[9] as number);
+        if (queryResult[0])
+            for (const rowQueryResult of queryResult[0].values)
                 transactions.push(new ModelTransaction(
-                    transaction[0] as number,
-                    transaction[1] as number,
-                    transaction[2] as string,
-                    transaction[3] as number,
-                    sender,
-                    receiver
+                    rowQueryResult[0] as number,
+                    rowQueryResult[1] as number,
+                    rowQueryResult[2] as string,
+                    rowQueryResult[3] as number,
+                    rowQueryResult[4] != null ?
+                        ModelEntity.get(rowQueryResult[4] as number) :
+                        new ModelWorld(),
+                    rowQueryResult[5] != null ?
+                        ModelEntity.get(rowQueryResult[5] as number) :
+                        new ModelWorld()
                 ));
-            }
+
         return transactions;
+
     }
 
     static getListBySearch(search: string): ModelTransaction[] {
-        const res = ModelTransaction.sqlite.exec(`
+        const queryResult = ModelTransaction.sqlite.exec(`
             SELECT t.* 
             FROM "Transaction" t
             JOIN FTS_Transaction fts ON t.id = fts.id
@@ -152,53 +156,22 @@ export class ModelTransaction extends Model {
             LIMIT 25
         `);
         const transactions: ModelTransaction[] = [];
-        if (res[0])
-            for (const transaction of res[0].values) {
-                let sender = new ModelWorld();
-                if (transaction[4] != null)
-                    sender = ModelAccount.getById(transaction[4] as number);
-                else if (transaction[6] != null)
-                    sender = ModelPerson.getById(transaction[6] as number);
-                let receiver = new ModelWorld();
-                if (transaction[5] != null)
-                    receiver = ModelAccount.getById(transaction[5] as number);
-                else if (transaction[7] != null)
-                    receiver = ModelPerson.getById(transaction[7] as number);
-                else if (transaction[9] != null)
-                    receiver = ModelConsumer.getById(transaction[9] as number);
+        if (queryResult[0])
+            for (const rowQueryResult of queryResult[0].values)
                 transactions.push(new ModelTransaction(
-                    transaction[0] as number,
-                    transaction[1] as number,
-                    transaction[2] as string,
-                    transaction[3] as number,
-                    sender,
-                    receiver
+                    rowQueryResult[0] as number,
+                    rowQueryResult[1] as number,
+                    rowQueryResult[2] as string,
+                    rowQueryResult[3] as number,
+                    rowQueryResult[4] != null ?
+                        ModelEntity.get(rowQueryResult[4] as number) :
+                        new ModelWorld(),
+                    rowQueryResult[5] != null ?
+                        ModelEntity.get(rowQueryResult[5] as number) :
+                        new ModelWorld()
                 ));
-            }
-        return transactions;
-    }
 
-    /**
-     * Calculate the change in the overall balance sheet taking into account all accounts
-     */
-    static calculateAccountOffset(): number {
-        const res = ModelTransaction.sqlite.exec(`
-            SELECT amount, sender_Account, receiver_Account
-            FROM "Transaction"
-            WHERE (sender_Account IS NOT NULL OR receiver_Account IS NOT NULL)
-            AND timestamp >= ${Date.now() - 7776000000}
-        `);
-        let offset = 0;
-        if (res[0])
-            for (const transaction of res[0].values) {
-                if (transaction[1] && transaction[2])
-                    continue;
-                if (transaction[1])
-                    offset -= transaction[0] as number / 100;
-                else if (transaction[2])
-                    offset += transaction[0] as number / 100;
-            }
-        return offset;
+        return transactions;
     }
 
     save(): void {
@@ -207,12 +180,8 @@ export class ModelTransaction extends Model {
             amount = ${Math.trunc(this.amount * 100)}, 
             description = "${this.description.trimStart().trimEnd()}", 
             timestamp = ${this.timestamp}, 
-            sender_Account = ${this.sender instanceof ModelAccount ? this.sender.id : "null"},
-            receiver_Account = ${this.receiver instanceof ModelAccount ? this.receiver.id : "null"},
-            sender_Person = ${this.sender instanceof ModelPerson ? this.sender.id : "null"},
-            receiver_Person = ${this.receiver instanceof ModelPerson ? this.receiver.id : "null"},
-            sender_Consumer = ${this.sender instanceof ModelConsumer ? this.sender.id : "null"},
-            receiver_Consumer = ${this.receiver instanceof ModelConsumer ? this.receiver.id : "null"}
+            EntitySender = ${this.sender instanceof ModelEntity ? this.sender.id : "null"},
+            EntityReceiver = ${this.receiver instanceof ModelEntity ? this.receiver.id : "null"}
             WHERE id = ${this.id}`
         );
     }

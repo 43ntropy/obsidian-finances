@@ -39,7 +39,7 @@ export class Controller {
                 case ControllerAction.OPEN_DASHBOARD: {
                     state = await viewDashboard({
                         default_account: ModelAccount.getById(ModelMetadata.getDefaultAccount()),
-                        transactions_total: zenParseMoney(ModelTransaction.calculateAccountOffset().toString()),
+                        transactions_total: zenParseMoney("0"),
                     });
                     break;
                 }

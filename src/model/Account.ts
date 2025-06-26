@@ -87,5 +87,9 @@ export class ModelAccount extends ModelEntity {
 
     delete(): void {
         // TODO: Implement delete strategy
+        throw new Error("Method not implemented.");
     }
+
 }
+
+ModelEntity.ENTITIES[1] = ModelAccount.getById;

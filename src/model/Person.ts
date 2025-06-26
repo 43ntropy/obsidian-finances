@@ -1,68 +1,100 @@
-import { Model } from "./Model";
+import { ModelEntity } from "./Entity";
 
-export class ModelPerson extends Model {
-    readonly id: number;
-    name: string;
+export class ModelPerson extends ModelEntity {
+
+    public name: string;
     /** 
      * **Positive**: Indicates that this person owes money to the user
      * 
      * **Negative**: Indicates that the user owes money to this person
      */
-    balance: number;
+    public balance: number;
     /** Amount loaned by the user to this person that is forgiven */
-    remission: number;
-    last_usage: number;
+    public remission: number;
+    public lastUsage: number;
 
-    private constructor(id: number, name: string, balance: number, remission: number, last_usage: number) {
-        super();
-        this.id = id;
+    private constructor(
+        entityId: number,
+        entityType: number,
+        name: string, 
+        balance: number,
+        remission: number, 
+        lastUsage: number
+    ) {
+        super(entityId, entityType);
         this.name = name;
         this.balance = balance / 100;
         this.remission = remission / 100;
-        this.last_usage = last_usage;
+        this.lastUsage = lastUsage;
     }
 
     static create(name: string, balance: number = 0, remission: number = 0): ModelPerson {
-        const res = ModelPerson.sqlite.exec(`
-            INSERT INTO Person (name, balance, remission, last_usage) 
-            VALUES ("${name}", ${Math.trunc(balance * 100)}, ${Math.trunc(remission * 100)}, ${Date.now()}) 
-            RETURNING id;
+
+        const entity = super.create("Person");
+
+        const queryResult = ModelPerson.sqlite.exec(`
+            INSERT INTO Person (
+                EntityId, 
+                name, 
+                balance, 
+                remission, 
+                lastUsage
+            ) VALUES (
+                ${entity.id}, 
+                "${name}", 
+                ${Math.trunc(balance * 100)}, 
+                ${Math.trunc(remission * 100)},
+                ${Date.now()}
+            ) 
+            RETURNING EntityId;
         `);
-        return ModelPerson.getById(res[0].values[0][0] as number);
+        return ModelPerson.getById(queryResult[0].values[0][0] as number);
     }
 
     static getById(id: number): ModelPerson {
-        const res = ModelPerson.sqlite.exec(`
-            SELECT * 
+
+        const queryResult = ModelPerson.sqlite.exec(`
+            SELECT Entity.id, Entity.type, Person.name, Person.balance, Person.remission, Person.lastUsage
             FROM Person 
+            INNER JOIN Entity ON Person.EntityId = Entity.id
             WHERE id = ${id}`
         );
+
         return new ModelPerson(
-            res[0].values[0][0] as number,
-            res[0].values[0][1] as string,
-            res[0].values[0][2] as number,
-            res[0].values[0][3] as number,
-            res[0].values[0][4] as number,
+            queryResult[0].values[0][0] as number, // Entity.id
+            queryResult[0].values[0][1] as number, // Entity.type
+            queryResult[0].values[0][2] as string, // name
+            queryResult[0].values[0][3] as number, // balance
+            queryResult[0].values[0][4] as number, // remission
+            queryResult[0].values[0][5] as number  // lastUsage
         );
+
     }
 
+    // TODO: Implement filters and pagination
     static getList(): ModelPerson[] {
-        const res = ModelPerson.sqlite.exec(`
-            SELECT * 
+
+        const queryResult = ModelPerson.sqlite.exec(`
+            SELECT Entity.id, Entity.type, Person.name, Person.balance, Person.remission, Person.lastUsage
             FROM Person
-            ORDER BY name ASC
+            INNER JOIN Entity ON Person.EntityId = Entity.id
+            ORDER BY lastUsage DESC
         `);
+
         const people: ModelPerson[] = [];
-        if (res[0])
-            for (const person of res[0].values)
+        if (queryResult[0])
+            for (const rowQueryResult of queryResult[0].values)
                 people.push(new ModelPerson(
-                    person[0] as number,
-                    person[1] as string,
-                    person[2] as number,
-                    person[3] as number,
-                    person[4] as number
+                    rowQueryResult[0] as number, // Entity.id
+                    rowQueryResult[1] as number, // Entity.type
+                    rowQueryResult[2] as string, // name
+                    rowQueryResult[3] as number, // balance
+                    rowQueryResult[4] as number, // remission
+                    rowQueryResult[5] as number  // lastUsage
                 ));
+
         return people;
+
     }
 
     save(): void {
@@ -71,16 +103,16 @@ export class ModelPerson extends Model {
             name = "${this.name}", 
             balance = ${Math.trunc(this.balance * 100)},  
             remission = ${Math.trunc(this.remission * 100)},
-            last_usage = ${this.last_usage} 
-            WHERE id = ${this.id}`
+            lastUsage = ${this.lastUsage} 
+            WHERE EntityId = ${this.id}`
         );
     }
 
     delete(): void {
-        ModelPerson.sqlite.exec(`
-            DELETE FROM Person 
-            WHERE id = ${this.id}`
-        );
+        // TODO: Implement delete strategy
+        throw new Error("Method not implemented.");
     }
 
 }
+
+ModelEntity.ENTITIES[2] = ModelPerson.getById;

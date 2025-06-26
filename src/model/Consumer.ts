@@ -1,78 +1,105 @@
-import { Model } from "./Model";
+import { ModelEntity } from "./Entity";
 
-export class ModelConsumer extends Model {
-    readonly id: number;
-    parent: ModelConsumer | null;
-    name: string;
-    last_usage: number;
+export class ModelConsumer extends ModelEntity {
 
-    private constructor(id: number, parent: ModelConsumer | null, name: string, last_usage: number) {
-        super();
-        this.id = id;
+    public parent: ModelConsumer | null;
+    public name: string;
+    public lastUsage: number;
+
+    private constructor(
+        entityId: number,
+        entityType: number,
+        name: string,
+        parent: ModelConsumer | null,
+        lastUsage: number
+    ) {
+        super(entityId, entityType);
         this.parent = parent;
         this.name = name;
-        this.last_usage = last_usage;
+        this.lastUsage = lastUsage;
     }
 
     static create(name: string, parent?: number): ModelConsumer {
-        const res = ModelConsumer.sqlite.exec(`
-            INSERT INTO Consumer (name, parent_Consumer, last_usage) 
-            VALUES ("${name}", ${parent != undefined ? parent : "null"}, ${Date.now()})
-            RETURNING id;
+
+        const entity = super.create("Consumer");
+
+        const queryResult = ModelConsumer.sqlite.exec(`
+            INSERT INTO Consumer (
+                EntityId, 
+                name, 
+                ConsumerParent, 
+                lastUsage
+            ) VALUES (
+                ${entity.id},
+                "${name}", 
+                ${parent != undefined ? parent : "null"}, 
+                ${Date.now()}
+            )
+            RETURNING EntityId;
         `);
-        return ModelConsumer.getById(res[0].values[0][0] as number);
+        return ModelConsumer.getById(queryResult[0].values[0][0] as number);
     }
 
 
     static getById(id: number): ModelConsumer {
-        const res = ModelConsumer.sqlite.exec(`
-            SELECT * 
+
+        const queryResult = ModelConsumer.sqlite.exec(`
+            SELECT Entity.id, Entity.type, Consumer.name, Consumer.ConsumerParent, Consumer.lastUsage
             FROM Consumer 
-            WHERE id = ${id}`
+            INNER JOIN Entity ON Consumer.EntityId = Entity.id
+            WHERE EntityId = ${id}`
         );
+
         return new ModelConsumer(
-            res[0].values[0][0] as number,
-            res[0].values[0][1] != null ? ModelConsumer.getById(res[0].values[0][1] as number) : null,
-            res[0].values[0][2] as string,
-            res[0].values[0][3] as number
+            queryResult[0].values[0][0] as number,
+            queryResult[0].values[0][1] as number,
+            queryResult[0].values[0][2] as string,
+            queryResult[0].values[0][3] != null ? ModelConsumer.getById(queryResult[0].values[0][3] as number) : null,
+            queryResult[0].values[0][4] as number
         );
+
     }
 
     static getList(parent?: number): ModelConsumer[] {
+
         const res = ModelConsumer.sqlite.exec(`
-            SELECT *
+            SELECT Entity.id, Entity.type, Consumer.name, Consumer.ConsumerParent, Consumer.lastUsage
             FROM Consumer
+            INNER JOIN Entity ON Consumer.EntityId = Entity.id
             ${parent != undefined ?
-                `WHERE parent_Consumer = ${parent}` :
-                "WHERE parent_Consumer IS NULL"}
-            ORDER BY last_usage DESC`,
+                `WHERE ConsumerParent = ${parent}` :
+                "WHERE ConsumerParent IS NULL"}
+            ORDER BY lastUsage DESC`,
         );
+
         const consumers: ModelConsumer[] = [];
         if (res[0])
-            for (const consumer of res[0].values)
+            for (const rowQueryResult of res[0].values)
                 consumers.push(new ModelConsumer(
-                    consumer[0] as number,
-                    consumer[1] != null ? ModelConsumer.getById(consumer[1] as number) : null,
-                    consumer[2] as string,
-                    consumer[3] as number
+                    rowQueryResult[0] as number,
+                    rowQueryResult[1] as number,
+                    rowQueryResult[2] as string,
+                    rowQueryResult[3] != null ? ModelConsumer.getById(rowQueryResult[3] as number) : null,
+                    rowQueryResult[4] as number,
                 ));
         return consumers;
+
     }
 
     save(): void {
         ModelConsumer.sqlite.exec(`
             UPDATE Consumer SET 
             name = "${this.name}",
-            parent_Consumer = ${this.parent != null ? this.parent.id : "null"},
-            last_usage = ${this.last_usage} 
-            WHERE id = ${this.id}`
+            ConsumerParent = ${this.parent != null ? this.parent.id : "null"},
+            lastUsage = ${this.lastUsage} 
+            WHERE EntityId = ${this.id}`
         );
     }
 
     delete(): void {
-        ModelConsumer.sqlite.exec(`
-            DELETE FROM Consumer 
-            WHERE id = ${this.id}`
-        );
+        // TODO: Implement delete strategy
+        throw new Error("Method not implemented.");
     }
 }
+
+ModelEntity.ENTITIES[3] = ModelConsumer.getById;

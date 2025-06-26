@@ -43,10 +43,10 @@ export class Model {
             )
         `);
 
-        // Polulate Entity
+        // Polulate Entity (Default Account)
         this.sqlite.exec(`
             INSERT OR IGNORE INTO "Entity" (id, type) VALUES
-            (0, 0)
+            (0, 1)
         `);
 
         // Account table
@@ -99,7 +99,7 @@ export class Model {
 	        "id"	            INTEGER,
 	        "amount"	        INTEGER NOT NULL,
 	        "description"   	TEXT,
-	        "timestamp "	    INTEGER NOT NULL,
+	        "timestamp"	         INTEGER NOT NULL,
         	"EntitySender"	    INTEGER,
         	"EntityReceiver"	INTEGER,
         	PRIMARY KEY("id" AUTOINCREMENT),
@@ -135,7 +135,7 @@ export class Model {
         // Create triggers
 
         this.sqlite.exec(`
-            CREATE TRIGGER "Transaction_Delete" 
+            CREATE TRIGGER IF NOT EXISTS "Transaction_Delete" 
             AFTER DELETE ON "Transaction" 
             BEGIN
                 DELETE FROM FTS_Transaction WHERE id = old.id;
@@ -143,7 +143,7 @@ export class Model {
         `);
 
         this.sqlite.exec(`
-            CREATE TRIGGER "Transaction_Insert"
+            CREATE TRIGGER IF NOT EXISTS "Transaction_Insert"
             AFTER INSERT ON "Transaction" 
             BEGIN
                 INSERT INTO FTS_Transaction (id, description)
@@ -152,14 +152,14 @@ export class Model {
         `);
 
         this.sqlite.exec(`
-            CREATE TRIGGER "Transaction_Update" 
+            CREATE TRIGGER IF NOT EXISTS "Transaction_Update" 
             AFTER UPDATE ON "Transaction" 
             BEGIN
                 DELETE FROM FTS_Transaction WHERE id = old.id;
                 INSERT INTO FTS_Transaction (id, description)
                 VALUES (new.id, new.description);
             END
-        `);
+        `)
 
     }
 }

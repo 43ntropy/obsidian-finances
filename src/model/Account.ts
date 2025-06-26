@@ -1,57 +1,77 @@
-import { Model } from "./Model";
+import { ModelEntity } from "./Entity";
 
-export class ModelAccount extends Model {
-    readonly id: number;
-    name: string;
-    balance: number;
-    last_usage: number;
+export class ModelAccount extends ModelEntity {
 
-    private constructor(id: number, name: string, balance: number, last_usage: number) {
-        super();
-        this.id = id;
+    public name: string;
+    public balance: number;
+    public lastUsage: number;
+
+    private constructor(
+        entityId: number,
+        entityType: number,
+        name: string, 
+        balance: number, 
+        lastUsage: number
+    ) {
+        super(entityId, entityType);
         this.name = name;
         this.balance = balance / 100;
-        this.last_usage = last_usage;
+        this.lastUsage = lastUsage;
     }
 
     static create(name: string, balance: number = 0): ModelAccount {
-        const res = ModelAccount.sqlite.exec(`
-            INSERT INTO Account (name, balance, last_usage)
-            VALUES ("${name}", ${Math.trunc(balance * 100)}, ${Date.now()})
-            RETURNING id;
+
+        const entity = super.create("Account");
+
+        const queryResult = ModelAccount.sqlite.exec(`
+            INSERT INTO Account (EntityId, name, balance, lastUsage)
+            VALUES (${entity.id}, "${name}", ${Math.trunc(balance * 100)}, ${Date.now()})
+            RETURNING EntityId;
         `);
-        return ModelAccount.getById(res[0].values[0][0] as number);
+
+        return ModelAccount.getById(queryResult[0].values[0][0] as number);
     }
 
     static getById(id: number): ModelAccount {
-        const res = ModelAccount.sqlite.exec(`
-            SELECT * 
+
+        const queryResult = ModelAccount.sqlite.exec(`
+            SELECT Entity.id, Entity.type, Account.name, Account.balance, Account.lastUsage
             FROM Account 
-            WHERE id = ${id}`
+            INNER JOIN Entity ON Account.EntityId = Entity.id
+            WHERE EntityId = ${id}`
         );
+
         return new ModelAccount(
-            res[0].values[0][0] as number,
-            res[0].values[0][1] as string,
-            res[0].values[0][2] as number,
-            res[0].values[0][3] as number,
+            queryResult[0].values[0][0] as number, // Entity.id
+            queryResult[0].values[0][1] as number, // Entity.type
+            queryResult[0].values[0][2] as string, // name
+            queryResult[0].values[0][3] as number, // balance
+            queryResult[0].values[0][4] as number  // lastUsage
         );
+
     }
 
+    // TODO: Implement filters and pagination
     static getList(): ModelAccount[] {
-        const res = ModelAccount.sqlite.exec(`
-            SELECT * 
+
+        const queryResult = ModelAccount.sqlite.exec(`
+            SELECT Entity.id, Entity.type, Account.name, Account.balance, Account.lastUsage 
             FROM Account
-            ORDER BY last_usage DESC
+            INNER JOIN Entity ON Account.EntityId = Entity.id
+            ORDER BY lastUsage DESC
         `);
+
         const accounts: ModelAccount[] = [];
-        if (res[0])
-            for (const account of res[0].values)
+        if (queryResult[0])
+            for (const rowQueryResult of queryResult[0].values)
                 accounts.push(new ModelAccount(
-                    account[0] as number,
-                    account[1] as string,
-                    account[2] as number,
-                    account[3] as number,
+                    rowQueryResult[0] as number, // Entity.id
+                    rowQueryResult[1] as number, // Entity.type
+                    rowQueryResult[2] as string, // name
+                    rowQueryResult[3] as number, // balance
+                    rowQueryResult[4] as number  // lastUsage
                 ));
+
         return accounts;
     }
 
@@ -60,15 +80,12 @@ export class ModelAccount extends Model {
             UPDATE Account SET 
             name = "${this.name}", 
             balance = ${Math.trunc(this.balance * 100)},
-            last_usage = ${this.last_usage} 
-            WHERE id = ${this.id}`
+            lastUsage = ${this.lastUsage} 
+            WHERE EntityId = ${this.id}`
         );
     }
 
     delete(): void {
-        ModelAccount.sqlite.exec(`
-            DELETE FROM Account 
-            WHERE id = ${this.id}`
-        );
+        // TODO: Implement delete strategy
     }
 }

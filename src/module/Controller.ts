@@ -1,5 +1,5 @@
 import { ModelAccount } from "src/model/Account";
-import { ModelConfiguration } from "src/model/Configuration";
+import { ModelMetadata } from "src/model/Metadata";
 import { viewNewAccount } from "src/view/NewAccount";
 import { viewAccounts } from "src/view/Accounts";
 import { viewDashboard } from "src/view/Dashboard";
@@ -38,7 +38,7 @@ export class Controller {
 
                 case ControllerAction.OPEN_DASHBOARD: {
                     state = await viewDashboard({
-                        default_account: ModelAccount.getById(ModelConfiguration.getDefaultAccount()),
+                        default_account: ModelAccount.getById(ModelMetadata.getDefaultAccount()),
                         transactions_total: zenParseMoney(ModelTransaction.calculateAccountOffset().toString()),
                     });
                     break;
@@ -51,14 +51,14 @@ export class Controller {
                 case ControllerAction.OPEN_ACCOUNTS: {
                     state = await viewAccounts({
                         accounts: ModelAccount.getList(),
-                        default_account: ModelConfiguration.getDefaultAccount()
+                        default_account: ModelMetadata.getDefaultAccount()
                     });
                     break;
                 }
 
                 case ControllerAction.OPEN_ACCOUNT: {
                     state = await viewAccount({
-                        default_account: ModelConfiguration.getDefaultAccount(),
+                        default_account: ModelMetadata.getDefaultAccount(),
                         account: ModelAccount.getById(state.action_data as number)
                     });
                     break;
@@ -119,7 +119,7 @@ export class Controller {
                 }
 
                 case ControllerAction.EDIT_ACCOUNT_DEFAULT: {
-                    ModelConfiguration.setDefaultAccount(state.action_data as number);
+                    ModelMetadata.setDefaultAccount(state.action_data as number);
                     state.action = ControllerAction.OPEN_ACCOUNT;
                     break;
                 }

@@ -24,6 +24,6 @@ data.json
 assets
 database.sqlite
 database.base.sqlite
-sql-wasm.wasm
+sqlite*.wasm
 package-lock.json
 .devhints.md

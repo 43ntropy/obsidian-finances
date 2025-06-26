@@ -1,11 +1,11 @@
 import { Model } from "./Model";
 
-export class ModelConfiguration extends Model {
+export class ModelMetadata extends Model {
 
     static getDefaultAccount(): number {
         const res = super.sqlite.exec(`
             SELECT *
-            FROM Configuration
+            FROM Metadata
             WHERE entry = "default_account"
         `);
         return res[0].values[0][1] as number;
@@ -13,7 +13,7 @@ export class ModelConfiguration extends Model {
 
     static setDefaultAccount(account_id: number): void {
         super.sqlite.exec(`
-            UPDATE Configuration
+            UPDATE Metadata
             SET value = ${account_id}
             WHERE entry = "default_account"
         `);

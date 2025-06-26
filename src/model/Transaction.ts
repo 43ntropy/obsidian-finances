@@ -30,7 +30,7 @@ export class ModelTransaction extends Model {
         timestamp: number
     ): ModelTransaction {
         const res = ModelTransaction.sqlite.exec(`
-            INSERT INTO "Transaction" (amount, description, timestamp, sender_Account, receiver_Account, sender_Person, receiver_Person, sender_Consumer, receiver_Consumer) 
+            INSERT INTO "Transaction" (amount, description, timestamp, EntitySender, EntityReceiver) 
             VALUES (${Math.trunc(amount * 100)}, "${description.trimStart().trimEnd()}", ${timestamp}, ${sender instanceof ModelAccount ? sender.id : "null"}, ${receiver instanceof ModelAccount ? receiver.id : "null"}, ${sender instanceof ModelPerson ? sender.id : "null"}, ${receiver instanceof ModelPerson ? receiver.id : "null"}, ${sender instanceof ModelConsumer ? sender.id : "null"}, ${receiver instanceof ModelConsumer ? receiver.id : "null"}) 
             RETURNING id;
         `);

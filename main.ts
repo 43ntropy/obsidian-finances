@@ -73,10 +73,13 @@ export default class Finances extends Plugin {
 
 		this.addSettingTab(await FinancesSettingsTab.build(this));
 
+		const status = this.addStatusBarItem()
+ 
 		// ! Temporary solution to save the database on close
 		Controller.onSave = async () => {
-			console.log("Saving database...");
+			status.setText("Saving...");
 			await this.app.vault.adapter.writeBinary(SQLITE_DB_PATH, Model.sqlite.export());
+			status.setText("");
 		}
 
 	}

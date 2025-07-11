@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-finances",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"description": "A simple finances management solution for Obsidian.",
 	"main": "main.js",
 	"scripts": {
@@ -12,12 +12,12 @@
 	"author": "43ntropy",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^24.0.4",
+		"@types/node": "^24.0.13",
 		"@types/sql.js": "^1.4.9",
-		"@typescript-eslint/eslint-plugin": "8.35.0",
-		"@typescript-eslint/parser": "8.35.0",
+		"@typescript-eslint/eslint-plugin": "8.36.0",
+		"@typescript-eslint/parser": "8.36.0",
 		"builtin-modules": "5.0.0",
-		"esbuild": "0.25.5",
+		"esbuild": "0.25.6",
 		"obsidian": "latest",
 		"tslib": "2.8.1",
 		"typescript": "5.8.3",

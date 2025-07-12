@@ -4,10 +4,14 @@ import { ModelPerson } from "src/model/Person";
 import { ModelTransaction } from "src/model/Transaction";
 import { ModelWorld } from "src/model/World";
 
-export function zenParseMoney(value: string): number {
+export function stringToMoney(value: string): number {
     if (value == null || value == undefined || value == ``) return 0;
     value = value.replace(/,/g, '.');
     return parseFloat(parseFloat(value).toFixed(2));
+}
+
+export function moneyToString(value: number): string {
+    return value.toFixed(2);
 }
 
 export function transactionIcon(transaction: ModelTransaction): string {

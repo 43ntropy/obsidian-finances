@@ -5,7 +5,7 @@ import { ModelConsumer } from "src/model/Consumer";
 import { ModelPerson } from "src/model/Person";
 import { ModelWorld } from "src/model/World";
 import { ControllerState } from "src/module/ControllerUiState";
-import { zenParseMoney } from "src/module/Utils";
+import { stringToMoney } from "src/module/Utils";
 
 export async function viewNewTransaction(cb: {
     getAccount: (id: number) => ModelAccount,
@@ -273,12 +273,12 @@ export class Modal_NewTransaction extends Modal {
         /* AMOUNT */
 
         const amount = new Setting(this.contentEl)
-            .setName(`Amount: ${zenParseMoney(this.amount) ?? "Invalid"}`)
+            .setName(`Amount: ${stringToMoney(this.amount) ?? "Invalid"}`)
             .setDesc("Enter the amount of the transaction")
             .addText((text) => {
                 text.onChange((value) => {
                     this.amount = value;
-                    amount.setName(`Amount: ${zenParseMoney(this.amount) ?? "Invalid"}`);
+                    amount.setName(`Amount: ${stringToMoney(this.amount) ?? "Invalid"}`);
                 })
             })
 
@@ -378,7 +378,7 @@ export class Modal_NewTransaction extends Modal {
                 btn.setCta();
                 btn.setIcon('checkmark');
                 btn.onClick(() => {
-                    this.onSubmit(this.sender!, this.receiver!, zenParseMoney(this.amount), this.description!, this.timestamp);
+                    this.onSubmit(this.sender!, this.receiver!, stringToMoney(this.amount), this.description!, this.timestamp);
                 });
             });
 

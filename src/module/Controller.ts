@@ -2,10 +2,9 @@ import { ModelAccount } from "src/model/Account";
 import { ModelMetadata } from "src/model/Metadata";
 import { viewNewAccount } from "src/view/NewAccount";
 import { viewAccounts } from "src/view/Accounts";
-import { viewDashboard } from "src/view/Dashboard";
 import { viewAccount } from "src/view/Account";
 import { ControllerState, ControllerAction } from "./ControllerUiState";
-import { zenParseMoney } from "./Utils";
+import { stringToMoney } from "./Utils";
 import { viewEditAccountName } from "src/view/EditAccountName";
 import { viewConfirm } from "src/view/Confirm";
 import { ModelPerson } from "src/model/Person";
@@ -22,6 +21,7 @@ import { viewTransaction } from "src/view/Transaction";
 import { viewNewTransaction } from "src/view/NewTransaction";
 import { ModelWorld } from "src/model/World";
 import { UiPerson } from "src/ui/UiPerson";
+import { UiDashboard } from "src/ui/UiDashboard";
 
 export class Controller {
 
@@ -37,9 +37,30 @@ export class Controller {
                 */
 
                 case ControllerAction.OPEN_DASHBOARD: {
-                    state = await viewDashboard({
-                        default_account: ModelAccount.getById(ModelMetadata.getDefaultAccount()),
-                        transactions_total: zenParseMoney("0"),
+                    state = await new Promise((resolve) => {
+                        new UiDashboard({
+                            default_account: ModelAccount.getById(ModelMetadata.getDefaultAccount()),
+                            transactions_total: 0
+                        }, {
+                            openAccounts: () => resolve({
+                                action: ControllerAction.OPEN_ACCOUNTS
+                            }),
+                            openTransactions: () => resolve({
+                                action: ControllerAction.OPEN_TRANSACTIONS
+                            }),
+                            createTransaction: () => resolve({
+                                action: ControllerAction.CREATE_TRANSACTION
+                            }),
+                            openPeople: () => resolve({
+                                action: ControllerAction.OPEN_PEOPLE
+                            }),
+                            openConsumers: () => resolve({
+                                action: ControllerAction.OPEN_CONSUMERS
+                            }),
+                            quit: () => resolve({
+                                action: ControllerAction.CLOSE
+                            }),
+                        })
                     });
                     break;
                 }
@@ -69,7 +90,7 @@ export class Controller {
                         submit: (fields) => {
                             const account = ModelAccount.create(
                                 fields[`name`],
-                                zenParseMoney(fields[`balance`])
+                                stringToMoney(fields[`balance`])
                             );
                             if (state.confirm_redirect) return {
                                 action: state.confirm_redirect,
@@ -193,7 +214,7 @@ export class Controller {
                         submit: (fields) => {
                             const person = ModelPerson.create(
                                 fields[`name`],
-                                zenParseMoney(fields[`owe_them`]) - zenParseMoney(fields[`owe_you`]),
+                                stringToMoney(fields[`owe_them`]) - stringToMoney(fields[`owe_you`]),
                             );
                             if (state.confirm_redirect) return {
                                 action: state.confirm_redirect,
